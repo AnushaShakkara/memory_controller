@@ -1,22 +1,31 @@
 # memory_controller
 Scheduler portion of memory controller
 
-### How to compile the code
+### How to run the project in QuestSim using .do files
 
 #### Normal mode:
-vlog testbench.sv
+##### Level 0: Closed Page Policy
+do level0.do
+
+##### Level 0: Closed Page Policy
+do level1.do
 
 #### Debug mode:
-vlog testbench.sv +define+DEBUG
+##### Level 0: Closed Page Policy
+do level0_debug.do
+
+##### Level 0: Closed Page Policy
+do level1_debug.do
 
 
-### Simulating the code
 
-#### When user gives input and output file names:
-vsim work.testbench +input_file=example.txt +output_file=example_out.txt
+#### Editing .do files
+If you wish to give input and output files names, you need to give those names in .do files.
 
-#### To use default input and output file names:
-vsim work.testbench
+Add the flag for input and output files for vsim command as follows:
+
+vsim work.testbench +input_file=example_input_file.txt +output_file=example_output_File.txt
+
 
 
 run
