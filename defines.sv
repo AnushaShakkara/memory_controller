@@ -1,5 +1,10 @@
 `timescale 1ps/1ps
 
+/* Clock delays */
+`define CPU_CLOCK_DELAY             104
+`define DIMM_CLOCK_DELAY            208
+
+
 `define MAX_QUEUE_SIZE              16
 `define MAX_BANK_GROUP              7
 `define MAX_BANK_NUMBER             3
@@ -8,10 +13,6 @@
 
 `define true                        1
 `define false                       0
-
-
-`define CPU_CLOCK_DELAY             104
-`define DIMM_CLOCK_DELAY            208
 
 
 /* Timing Contraints */
@@ -38,13 +39,13 @@
 
 
 
-
 typedef enum integer
 {
     DATA_READ,
     DATA_WRITE,
     INSTRUCTION_FETCH
 }Operation;
+
 
 typedef enum int
 {
@@ -60,11 +61,13 @@ typedef enum int
     PROCESSED               // 9
 }State;
 
+
 typedef enum bit
 {
     CLOSED,
     OPEN
 }BankState;
+
 
 typedef enum int
 {
@@ -72,6 +75,7 @@ typedef enum int
     PAGE_MISS,
     PAGE_HIT
 }PageAction;
+
 
 typedef enum int
 {
@@ -88,13 +92,13 @@ typedef enum int
 }T_Constraints; 
 
 
+
 class Request;
 
     integer time_t;
     integer core;
     integer operation;
     longint unsigned address;
-    longint unsigned queueTime;
 
     logic [15:0] row;
     logic [9:0] column;
@@ -103,8 +107,10 @@ class Request;
     logic channel;
 
 
-    int timer;
+    /* current state of the request */
     State state;
+
+    /* next state of request */
     State nextState;
 
     function new (integer time_t, integer core, integer operation, longint unsigned address);
@@ -114,7 +120,6 @@ class Request;
         this.operation = operation;
         this.address = address;
         this.state = NOT_PROCESSED;
-        this.timer = 0;
 
         this.row = 0;
         this.column = 0;
@@ -124,46 +129,42 @@ class Request;
 
     endfunction
 
-    function void display();
-
-        $display ("%d %d %d\t %0h",this.time_t, this.core, this.operation, this.address);
-    
-    endfunction
-
 endclass;
+
 
 
 class Bank;
 
-    BankState bankState;
+    /* To know if the bank is open/closed */
+    BankState bankState;    
+   
+    /*To keep the track of the request state (The request which is being currently processed in a bank)*/
     State requestState;
+   
+    /*To keep the track of current active row in a bank*/
     int currentActiveRow;
-    bit isWriteDone;
-    bit isReadDone;
-    Request BankRequests [$ : `MAX_QUEUE_SIZE];
-
+   
     /* Timers */
-
-                int tRC;
-                int tRAS;
-                int tRRD_L;
-                int tRRD_S;
-                int tRP;
-                int tRFC;
-                int tCWD;
-                int tCL;
-                int tRCD;
-                int tWR;
-                int tRTP;
-                int tCCD_L;
-                int tCCD_S;
-                int tCCD_L_WR;
-                int tCCD_S_WR;
-                int tBURST;
-                int tCCD_L_RTW;
-                int tCCD_S_RTW;
-                int tCCD_L_WTR;
-                int tCCD_S_WTR;
+    int tRC;
+    int tRAS;
+    int tRRD_L;
+    int tRRD_S;
+    int tRP;
+    int tRFC;
+    int tCWD;
+    int tCL;
+    int tRCD;
+    int tWR;
+    int tRTP;
+    int tCCD_L;
+    int tCCD_S;
+    int tCCD_L_WR;
+    int tCCD_S_WR;
+    int tBURST;
+    int tCCD_L_RTW;
+    int tCCD_S_RTW;
+    int tCCD_L_WTR;
+    int tCCD_S_WTR;
 
 
 
@@ -171,8 +172,6 @@ class Bank;
 
         this.bankState = bankstate;
         this.currentActiveRow = currentActiveRow;
-        this.isWriteDone = `false;
-        this.isReadDone = `false;
         this.tRC = 0;
         this.tRAS = 0;
         this.tRRD_L = 0;
